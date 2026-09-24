@@ -1,0 +1,26 @@
+# Runtime and test databases
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Test scratch data
+Tests/work/
+
+# Local SQLite binary (install separately; see README.md)
+Bin/sqlite3.exe
+
+# Obsolete pre-migration snapshot
+Tests/TEST-0010B-17A.before-finally.ps1
+
+# PowerShell and editor artifacts
+*.log
+*.tmp
+*.bak
+.vscode/
+.idea/
+
+# Windows metadata
+Thumbs.db
+Desktop.ini
+
