@@ -51,10 +51,30 @@ try {
         -Expected ([System.IO.Path]::GetFullPath($explicitSqlitePath)) `
         -Actual $resolvedExplicit
 
-    Assert-Equal `
-        -Name 'automatic SQLite resolution' `
-        -Expected ([System.IO.Path]::GetFullPath($explicitSqlitePath)) `
-        -Actual $resolvedAutomatic
+    $bundledSqlitePath = 'C:\PrintGateway\Bin\sqlite3.exe'
+
+$pathSqliteCommand = Get-Command `
+    sqlite3.exe `
+    -CommandType Application `
+    -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+
+$expectedAutomaticSqlitePath = if (
+    Test-Path -LiteralPath $bundledSqlitePath -PathType Leaf
+) {
+    [System.IO.Path]::GetFullPath($bundledSqlitePath)
+}
+elseif ($null -ne $pathSqliteCommand) {
+    [System.IO.Path]::GetFullPath($pathSqliteCommand.Source)
+}
+else {
+    [System.IO.Path]::GetFullPath($explicitSqlitePath)
+}
+
+Assert-Equal `
+    -Name 'automatic SQLite resolution follows documented priority' `
+    -Expected $expectedAutomaticSqlitePath `
+    -Actual $resolvedAutomatic
 
     $invalidPathWasBlocked = $false
 
