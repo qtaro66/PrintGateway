@@ -16,6 +16,92 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  printgateway-safe-regression:
+    name: "PrintGateway Safe Regression"
+    runs-on: windows-2022
+    timeout-minutes: 20
+
+    steps:
+      # actions/checkout v7.0.1
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install pinned SQLite
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          choco install sqlite `
+            --version=3.53.4 `
+            --yes `
+            --no-progress
+
+          $sqliteExecutable = Get-ChildItem `
+            -LiteralPath 'C:\ProgramData\chocolatey\lib\sqlite\tools' `
+            -Filter 'sqlite3.exe' `
+            -File `
+            -Recurse |
+              Select-Object -First 1
+
+          if ($null -eq $sqliteExecutable) {
+            throw 'Chocolatey installed SQLite but sqlite3.exe was not found.'
+          }
+
+          $expectedDirectory = Join-Path `
+            $env:LOCALAPPDATA `
+            'Android\Sdk\platform-tools'
+
+          New-Item `
+            -ItemType Directory `
+            -Path $expectedDirectory `
+            -Force |
+              Out-Null
+
+          $expectedPath = Join-Path $expectedDirectory 'sqlite3.exe'
+
+          Copy-Item `
+            -LiteralPath $sqliteExecutable.FullName `
+            -Destination $expectedPath `
+            -Force
+
+          & $expectedPath -version
+
+          if ($LASTEXITCODE -ne 0) {
+            throw 'The provisioned sqlite3.exe could not be executed.'
+          }
+
+      - name: Stage PrintGateway deployment layout
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $deploymentRoot = 'C:\PrintGateway'
+
+          if (Test-Path -LiteralPath $deploymentRoot) {
+            throw "Unexpected pre-existing directory: $deploymentRoot"
+          }
+
+          New-Item `
+            -ItemType Directory `
+            -Path $deploymentRoot |
+              Out-Null
+
+          Get-ChildItem `
+            -LiteralPath $env:GITHUB_WORKSPACE `
+            -Force |
+              Where-Object Name -ne '.git' |
+              Copy-Item `
+                -Destination $deploymentRoot `
+                -Recurse `
+                -Force
+
+      - name: Run safe regression suite
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Set-Location 'C:\PrintGateway'
+
+          & '.\Tests\Invoke-PrintGatewayTests.ps1'
+          
   powershell-static-analysis:
     name: "PowerShell Static Analysis"
     runs-on: windows-2022
