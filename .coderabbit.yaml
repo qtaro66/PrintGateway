@@ -1,0 +1,39 @@
+version: 2
+
+language: "en-US"
+
+early_access: false
+
+reviews:
+  profile: "chill"
+
+  request_changes_workflow: false
+
+  high_level_summary: true
+
+  poem: false
+
+  instructions: |
+    - Focus exclusively on Business Logic correctness.
+    - Review Concurrency and Race Conditions.
+    - Review Resource Leaks.
+    - Review Edge Cases.
+    - Review Invariant Enforcement.
+    - DO NOT comment on formatting, styling, or trivial linting.
+    - DO NOT duplicate standard security findings already handled by Snyk and SonarQube.
+    - For PowerShell:
+      - Ensure StrictMode compatibility.
+      - Check UTF-8 encoding requirements for non-ASCII content.
+      - Verify exact integer division and bit-shift behavior.
+      - Pay special attention to -shr versus /.
+
+  auto_review:
+    enabled: true
+    drafts: false
+
+  tools:
+    ast-grep:
+      enabled: false
+
+chat:
+  auto_reply: true

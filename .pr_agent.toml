@@ -1,0 +1,28 @@
+[pr_reviewer]
+
+enable_review_labels_effort = false
+
+num_code_suggestions = 1
+
+inline_code_comments = false
+
+
+[pr_description]
+
+publish_description_as_comment = false
+
+
+[pr_test]
+
+enable_auto_generate_tests = true
+
+num_tests = 4
+
+testing_framework = "auto"
+
+
+[config]
+
+verbosity_level = 0
+
+enable_command_triggers = true
