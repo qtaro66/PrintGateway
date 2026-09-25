@@ -56,8 +56,15 @@ function Invoke-PrintJobStoreSqlite {
         throw "Database not found: $DatabasePath"
     }
 
-    # รัน sqlite3 โดยใช้ Tab (`t) เป็นตัวคั่น เพื่อไม่ให้ชนกับ | ในข้อความ Error
-    $output = & $SqlitePath -batch -noheader -separator "`t" $DatabasePath $Sql 2>&1
+    # ส่ง SQL ผ่าน stdin เพื่อให้ -bail หยุดทันทีเมื่อ statement ใดล้มเหลว
+    # เมื่อ process ปิดลงขณะ transaction ยังไม่ COMMIT SQLite จะ rollback ให้อัตโนมัติ
+$output = $Sql |
+    & $SqlitePath `
+        -batch `
+        -bail `
+        -noheader `
+        -separator "`t" `
+        $DatabasePath 2>&1
 
     if ($LASTEXITCODE -ne 0) {
         throw "SQLite failed: $($output -join [Environment]::NewLine)"
