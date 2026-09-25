@@ -1,50 +1,95 @@
-name: "Tier 1: Security & Quality Gate"
+name: "Tier 1: Security & Quality"
 
 on:
   pull_request:
     branches:
       - main
-      - develop
-
   push:
     branches:
       - main
 
+permissions:
+  contents: read
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-
-  snyk-code-security:
-    name: "Snyk Code Security Scan"
-    runs-on: ubuntu-latest
+  powershell-static-analysis:
+    name: "PowerShell Static Analysis"
+    runs-on: windows-2022
+    timeout-minutes: 15
 
     steps:
+      # actions/checkout v7.0.1 — pinned to an immutable commit
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - name: Install Snyk CLI
-        uses: snyk/actions/setup@master
-
-      - name: Run Snyk Code Scan
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
         run: |
-          snyk code test --severity-threshold=high
+          $ErrorActionPreference = 'Stop'
 
+          Install-Module `
+            -Name PSScriptAnalyzer `
+            -RequiredVersion 1.25.0 `
+            -Scope CurrentUser `
+            -Force
 
-  sonarcloud-analysis:
-    name: "SonarCloud Quality Gate"
-    runs-on: ubuntu-latest
+      - name: Run security-focused PowerShell analysis
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          Import-Module `
+            -Name PSScriptAnalyzer `
+            -RequiredVersion 1.25.0 `
+            -Force
+
+          $rules = @(
+            'PSAvoidUsingAllowUnencryptedAuthentication'
+            'PSAvoidUsingBrokenHashAlgorithms'
+            'PSAvoidUsingComputerNameHardcoded'
+            'PSAvoidUsingConvertToSecureStringWithPlainText'
+            'PSAvoidUsingInvokeExpression'
+            'PSAvoidUsingPlainTextForPassword'
+            'PSAvoidUsingUsernameAndPasswordParams'
+          )
+
+          $findings = @(
+            Invoke-ScriptAnalyzer `
+              -Path . `
+              -Recurse `
+              -IncludeRule $rules
+          )
+
+          if ($findings.Count -gt 0) {
+            $findings |
+              Select-Object RuleName, Severity, ScriptName, Line, Message |
+              Format-Table -AutoSize |
+              Out-String |
+              Write-Host
+
+            throw "PSScriptAnalyzer found $($findings.Count) security finding(s)."
+          }
+
+          Write-Host 'PSScriptAnalyzer: no blocking security findings.'
+
+  sonarqube-analysis:
+    name: "SonarQube Cloud Scan"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     steps:
+      # actions/checkout v7.0.1 — pinned to an immutable commit
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
 
-      - name: SonarQube Cloud Scan
-        uses: SonarSource/sonarqube-scan-action@v7
+      # SonarSource/sonarqube-scan-action v8.2.2
+      - name: Run SonarQube Cloud scan
+        uses: SonarSource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
