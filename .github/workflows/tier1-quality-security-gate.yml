@@ -1,0 +1,196 @@
+name: "Tier 1: Security & Quality"
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  printgateway-safe-regression:
+    name: "PrintGateway Safe Regression"
+    runs-on: windows-2022
+    timeout-minutes: 20
+
+    steps:
+      # actions/checkout v7.0.1
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install pinned SQLite
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          choco install sqlite `
+            --version=3.53.4 `
+            --yes `
+            --no-progress
+
+          $chocoExitCode = $LASTEXITCODE
+          if ($chocoExitCode -ne 0) {
+            throw "Chocolatey failed to install SQLite 3.53.4 (exit code $chocoExitCode)."
+          }
+
+          $sqliteExecutable = Get-ChildItem `
+            -LiteralPath 'C:\ProgramData\chocolatey\lib\sqlite\tools' `
+            -Filter 'sqlite3.exe' `
+            -File `
+            -Recurse |
+              Select-Object -First 1
+
+          if ($null -eq $sqliteExecutable) {
+            throw 'Chocolatey installed SQLite but sqlite3.exe was not found.'
+          }
+
+          $expectedDirectory = Join-Path `
+            $env:LOCALAPPDATA `
+            'Android\Sdk\platform-tools'
+
+          New-Item `
+            -ItemType Directory `
+            -Path $expectedDirectory `
+            -Force |
+              Out-Null
+
+          $expectedPath = Join-Path $expectedDirectory 'sqlite3.exe'
+
+          Copy-Item `
+            -LiteralPath $sqliteExecutable.FullName `
+            -Destination $expectedPath `
+            -Force
+
+          & $expectedPath -version
+
+          if ($LASTEXITCODE -ne 0) {
+            throw 'The provisioned sqlite3.exe could not be executed.'
+          }
+
+      - name: Stage PrintGateway deployment layout
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $deploymentRoot = 'C:\PrintGateway'
+
+          if (Test-Path -LiteralPath $deploymentRoot) {
+            throw "Unexpected pre-existing directory: $deploymentRoot"
+          }
+
+          New-Item `
+            -ItemType Directory `
+            -Path $deploymentRoot |
+              Out-Null
+
+          Get-ChildItem `
+            -LiteralPath $env:GITHUB_WORKSPACE `
+            -Force |
+              Where-Object Name -ne '.git' |
+              Copy-Item `
+                -Destination $deploymentRoot `
+                -Recurse `
+                -Force
+
+      - name: Run safe regression suite
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Set-Location 'C:\PrintGateway'
+
+          & '.\Tests\Invoke-PrintGatewayTests.ps1'
+
+  powershell-static-analysis:
+    name: "PowerShell Static Analysis"
+    runs-on: windows-2022
+    timeout-minutes: 15
+
+    steps:
+      # actions/checkout v7.0.1 — pinned to an immutable commit
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          Install-Module `
+            -Name PSScriptAnalyzer `
+            -RequiredVersion 1.25.0 `
+            -Scope CurrentUser `
+            -Force
+
+      - name: Run security-focused PowerShell analysis
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          Import-Module `
+            -Name PSScriptAnalyzer `
+            -RequiredVersion 1.25.0 `
+            -Force
+
+          $rules = @(
+            'PSAvoidUsingAllowUnencryptedAuthentication'
+            'PSAvoidUsingBrokenHashAlgorithms'
+            'PSAvoidUsingComputerNameHardcoded'
+            'PSAvoidUsingConvertToSecureStringWithPlainText'
+            'PSAvoidUsingInvokeExpression'
+            'PSAvoidUsingPlainTextForPassword'
+            'PSAvoidUsingUsernameAndPasswordParams'
+          )
+
+          $findings = @(
+            Invoke-ScriptAnalyzer `
+              -Path . `
+              -Recurse `
+              -IncludeRule $rules
+          )
+
+          if ($findings.Count -gt 0) {
+            $findings |
+              Select-Object RuleName, Severity, ScriptName, Line, Message |
+              Format-Table -AutoSize |
+              Out-String |
+              Write-Host
+
+            throw "PSScriptAnalyzer found $($findings.Count) security finding(s)."
+          }
+
+          Write-Host 'PSScriptAnalyzer: no blocking security findings.'
+
+  sonarqube-analysis:
+    name: "SonarQube Cloud Scan"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      # actions/checkout v7.0.1 — pinned to an immutable commit
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      # SonarSource/sonarqube-scan-action v8.2.2
+      - name: Run SonarQube Cloud scan
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: SonarSource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Explain fork pull request handling
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::notice::SonarQube Cloud scan is skipped for fork pull requests because GitHub does not expose repository secrets to forked code. PSScriptAnalyzer and the safe regression gate remain enforced."
