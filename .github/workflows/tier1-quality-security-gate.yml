@@ -101,7 +101,7 @@ jobs:
           Set-Location 'C:\PrintGateway'
 
           & '.\Tests\Invoke-PrintGatewayTests.ps1'
-          
+
   powershell-static-analysis:
     name: "PowerShell Static Analysis"
     runs-on: windows-2022
