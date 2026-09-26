@@ -161,7 +161,7 @@ log, expose, or commit the token.
 
 ## 9. AI review tools
 
-CodeRabbit and Qodo are advisory only.
+Qodo is advisory only.
 
 They must not:
 
@@ -174,11 +174,6 @@ They must not:
   evidence.
 
 AI findings require human evaluation before changes are accepted.
-
-For an OSS repository where CodeRabbit skips automatic review, a maintainer may
-request a manual review with:
-
-`@coderabbitai full review`
 
 Repository-level Qodo configuration must be validated with a new pull request
 after `.pr_agent.toml` has been merged into the default branch. The current
@@ -198,7 +193,7 @@ When explicitly authorized, configure the ruleset to:
 - Require conversation resolution.
 - Block force pushes.
 - Block branch deletion.
-- Exclude CodeRabbit and Qodo from required status checks.
+- Exclude Qodo from required status checks.
 
 For a repository with only one maintainer, do not require an unavailable
 independent approval. Require at least one approval when an independent reviewer
@@ -271,7 +266,7 @@ A PrintGateway DevSecOps implementation is complete only when:
 5. Safe regression tests run without printer access.
 6. Third-party GitHub Actions are pinned to full commit SHAs.
 7. Documentation matches the implemented workflow.
-8. CodeRabbit and Qodo remain non-blocking.
+8. Qodo remains non-blocking.
 9. The `main` ruleset requires only current deterministic checks.
 10. A follow-up pull request confirms the active ruleset and default-branch AI
     configuration behave as documented.

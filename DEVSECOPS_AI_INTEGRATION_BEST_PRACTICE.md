@@ -19,11 +19,10 @@ PrintGateway separates deterministic merge gates from advisory AI reviews.
 
 | Tool | Purpose | Blocks merge |
 |---|---|---:|
-| CodeRabbit | Reviews business logic, concurrency, resource handling, and edge cases | No |
 | Qodo | Provides advisory PR summaries and code-review findings | No |
 
-AI-generated findings must be reviewed by a human. CodeRabbit and Qodo must
-not be configured as required status checks.
+AI-generated findings must be reviewed by a human. Qodo must not be configured
+as a required status check.
 
 ## 2. Platform constraints
 
@@ -52,7 +51,6 @@ The authoritative configuration files are:
 
 - `.github/workflows/tier1-quality-security-gate.yml`
 - `sonar-project.properties`
-- `.coderabbit.yaml`
 - `.pr_agent.toml`
 
 Do not duplicate the complete GitHub Actions workflow in this document.
@@ -85,7 +83,6 @@ Require these status checks:
 
 Do not require:
 
-- CodeRabbit
 - Qodo
 - Snyk Code Security Scan
 - obsolete Pester check names
@@ -110,20 +107,14 @@ Recommended protections:
 6. Resolve applicable review conversations.
 7. Merge only when every required Tier 1 check is green.
 
-For CodeRabbit repositories that do not receive automatic OSS reviews,
-request a manual review with:
-
-`@coderabbitai full review`
-
 Qodo repository-level configuration becomes effective after it is merged
 into the default branch. Validate it using a subsequent test pull request.
 
 ## 7. Cost and licensing
 
 The selected workflow uses GitHub Actions allowances for public repositories,
-SonarQube Cloud's open-source/public-project offering, PSScriptAnalyzer,
-CodeRabbit's available OSS review mode, and Qodo's available public-repository
-integration.
+SonarQube Cloud's open-source/public-project offering, PSScriptAnalyzer, and
+Qodo's available public-repository integration.
 
 No additional paid SAST service is required for the current PowerShell-only
 codebase. Service terms and public-project limits may change and should be
