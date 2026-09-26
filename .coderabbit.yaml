@@ -12,19 +12,19 @@ reviews:
   path_instructions:
     - path: "**/*"
 
-  instructions: |
-    - Focus exclusively on Business Logic correctness.
-    - Review Concurrency and Race Conditions.
-    - Review Resource Leaks.
-    - Review Edge Cases.
-    - Review Invariant Enforcement.
-    - DO NOT comment on formatting, styling, or trivial linting.
-    - DO NOT duplicate deterministic security and quality findings already handled by PSScriptAnalyzer, PrintGateway Safe Regression, and SonarQube Cloud.
-    - For PowerShell:
-      - Ensure StrictMode compatibility.
-      - Check UTF-8 encoding requirements for non-ASCII content.
-      - Verify exact integer division and bit-shift behavior.
-      - Pay special attention to -shr versus /.
+    instructions: |
+      - Focus exclusively on Business Logic correctness.
+      - Review Concurrency and Race Conditions.
+      - Review Resource Leaks.
+      - Review Edge Cases.
+      - Review Invariant Enforcement.
+      - DO NOT comment on formatting, styling, or trivial linting.
+      - DO NOT duplicate deterministic security and quality findings already handled by PSScriptAnalyzer, PrintGateway Safe Regression, and SonarQube Cloud.
+      - For PowerShell:
+        - Ensure StrictMode compatibility.
+        - Check UTF-8 encoding requirements for non-ASCII content.
+        - Verify exact integer division and bit-shift behavior.
+        - Pay special attention to -shr versus /.
 
   auto_review:
     enabled: true
