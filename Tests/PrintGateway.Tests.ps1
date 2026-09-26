@@ -13,7 +13,8 @@ $testCases = @(
     'TEST-0010B-19D.ps1',
     'TEST-0010B-19E.ps1',
     'TEST-0010B-19E-HARDENING.ps1',
-    'TEST-0010B-20A.ps1'
+    'TEST-0010B-20A.ps1',
+    'TEST-0020A-POS-PRINT-CONTRACT.ps1'
 )
 
 $results = [System.Collections.Generic.List[object]]::new()
@@ -54,4 +55,3 @@ $results | Format-Table -AutoSize
 Write-Host "PASS: $($results.Count)/$($testCases.Count)"
 
 return @($results)
-
