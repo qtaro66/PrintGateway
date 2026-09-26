@@ -1,28 +1,23 @@
-[pr_reviewer]
-
-enable_review_labels_effort = false
-
-num_code_suggestions = 1
-
-inline_code_comments = false
-
-
-[pr_description]
-
-publish_description_as_comment = false
-
-
-[pr_test]
-
-enable_auto_generate_tests = true
-
-num_tests = 4
-
-testing_framework = "auto"
-
-
 [config]
-
 verbosity_level = 0
 
-enable_command_triggers = true
+[pr_reviewer]
+enable_review_labels_effort = false
+enable_review_labels_security = false
+inline_key_issues = false
+num_max_findings = 3
+
+extra_instructions = """
+Focus on business-logic correctness, concurrency, race conditions,
+resource disposal, error handling, edge cases, and state-machine invariants.
+
+For PowerShell, verify StrictMode compatibility, SQLite transaction
+boundaries, UTF-8 handling, integer division, and bit-shift behavior.
+
+Do not duplicate deterministic findings already covered by
+PSScriptAnalyzer, PrintGateway Safe Regression, or SonarQube Cloud.
+Act as advisory guidance only and do not act as a merge gate.
+"""
+
+[pr_description]
+publish_description_as_comment = false
