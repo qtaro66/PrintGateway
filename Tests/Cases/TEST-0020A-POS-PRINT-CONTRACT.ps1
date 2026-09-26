@@ -111,6 +111,11 @@ $spacedEmptyPayloadJson = @'
 
 $job = ConvertFrom-PrintGatewayJobJson -Json $validJson
 $reorderedJob = ConvertFrom-PrintGatewayJobJson -Json $reorderedJson
+$fractionalTimestampJob = ConvertFrom-PrintGatewayJobJson `
+    -Json ($validJson.Replace(
+        '2026-09-26T06:00:00Z',
+        '2026-09-26T06:00:00.1234567Z'
+    ))
 
 Assert-Equal -Name 'contract version' -Expected '1.0' -Actual $job.ContractVersion
 Assert-Equal -Name 'job ID' -Expected 'ORDER-20260926-0001' -Actual $job.JobId
@@ -119,6 +124,10 @@ Assert-Equal -Name 'printer ID' -Expected 'KITCHEN-01' -Actual $job.PrinterId
 Assert-Equal -Name 'document type' -Expected 'KITCHEN_TICKET' -Actual $job.DocumentType
 Assert-Equal -Name 'template ID' -Expected 'kitchen-ticket-v1' -Actual $job.TemplateId
 Assert-Equal -Name 'fingerprint length' -Expected 64 -Actual $job.RequestFingerprint.Length
+Assert-Equal `
+    -Name 'seven-digit fractional timestamp accepted' `
+    -Expected 2026 `
+    -Actual $fractionalTimestampJob.RequestedAtUtc.Year
 Assert-Equal `
     -Name 'canonical fingerprint ignores property order' `
     -Expected $job.RequestFingerprint `
@@ -135,6 +144,16 @@ Assert-ThrowsLike `
     -Action { ConvertFrom-PrintGatewayJobJson -Json ($validJson.Replace('"0021"', '"21"')) }
 
 Assert-ThrowsLike `
+    -Name 'Arabic-Indic process ID blocked' `
+    -Pattern '*processId must contain exactly 4 digits*' `
+    -Action { ConvertFrom-PrintGatewayJobJson -Json ($validJson.Replace('"0021"', '"٠٠٢١"')) }
+
+Assert-ThrowsLike `
+    -Name 'full-width process ID blocked' `
+    -Pattern '*processId must contain exactly 4 digits*' `
+    -Action { ConvertFrom-PrintGatewayJobJson -Json ($validJson.Replace('"0021"', '"００２１"')) }
+
+Assert-ThrowsLike `
     -Name 'non-UTC timestamp blocked' `
     -Pattern '*requestedAtUtc must be a valid UTC*' `
     -Action { ConvertFrom-PrintGatewayJobJson -Json ($validJson.Replace('2026-09-26T06:00:00Z', '2026-09-26T13:00:00+07:00')) }
@@ -145,9 +164,24 @@ Assert-ThrowsLike `
     -Action { ConvertFrom-PrintGatewayJobJson -Json ($validJson.Replace('2026-09-26T06:00:00Z', '09/26/2026 06:00:00Z')) }
 
 Assert-ThrowsLike `
+    -Name 'eight-digit fractional timestamp blocked' `
+    -Pattern '*requestedAtUtc must be a valid UTC*' `
+    -Action { ConvertFrom-PrintGatewayJobJson -Json ($validJson.Replace('2026-09-26T06:00:00Z', '2026-09-26T06:00:00.12345678Z')) }
+
+Assert-ThrowsLike `
     -Name 'unknown top-level property blocked' `
     -Pattern '*Unknown print job contract property*' `
     -Action { ConvertFrom-PrintGatewayJobJson -Json ($validJson.Replace('"payload": {', '"unexpected": true, "payload": {')) }
+
+Assert-ThrowsLike `
+    -Name 'wrong-case property blocked' `
+    -Pattern '*Unknown print job contract property*' `
+    -Action { ConvertFrom-PrintGatewayJobJson -Json ($validJson.Replace('"jobId":', '"JOBID":')) }
+
+Assert-ThrowsLike `
+    -Name 'wrong-case document type blocked' `
+    -Pattern '*Unsupported documentType*' `
+    -Action { ConvertFrom-PrintGatewayJobJson -Json ($validJson.Replace('"KITCHEN_TICKET"', '"kitchen_ticket"')) }
 
 Assert-ThrowsLike `
     -Name 'duplicate nested property blocked' `

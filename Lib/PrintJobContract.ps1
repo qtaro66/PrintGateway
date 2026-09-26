@@ -12,11 +12,26 @@ $script:PrintGatewayContractRequiredProperties = @(
     'requestedAtUtc',
     'payload'
 )
+$script:PrintGatewayContractRequiredPropertySet =
+    [System.Collections.Generic.HashSet[string]]::new(
+        [System.StringComparer]::Ordinal
+    )
+foreach ($requiredProperty in $script:PrintGatewayContractRequiredProperties) {
+    [void]$script:PrintGatewayContractRequiredPropertySet.Add($requiredProperty)
+}
+
 $script:PrintGatewayContractDocumentTypes = @(
     'RECEIPT',
     'KITCHEN_TICKET',
     'ORDER_SUMMARY'
 )
+$script:PrintGatewayContractDocumentTypeSet =
+    [System.Collections.Generic.HashSet[string]]::new(
+        [System.StringComparer]::Ordinal
+    )
+foreach ($documentType in $script:PrintGatewayContractDocumentTypes) {
+    [void]$script:PrintGatewayContractDocumentTypeSet.Add($documentType)
+}
 
 function Assert-PrintGatewayJsonHasUniqueProperties {
     [CmdletBinding()]
@@ -110,7 +125,7 @@ function Write-PrintGatewayCanonicalJsonElement {
         }
 
         ([System.Text.Json.JsonValueKind]::Number) {
-            $Writer.WriteRawValue($Element.GetRawText(), $true)
+            $Element.WriteTo($Writer)
         }
 
         ([System.Text.Json.JsonValueKind]::True) {
@@ -187,13 +202,18 @@ function ConvertFrom-PrintGatewayJobJson {
 
         Assert-PrintGatewayJsonHasUniqueProperties -Element $root
 
-        $properties = @{}
+        $properties = [System.Collections.Generic.Dictionary[
+            string,
+            System.Text.Json.JsonElement
+        ]]::new([System.StringComparer]::Ordinal)
         foreach ($property in $root.EnumerateObject()) {
-            if ($property.Name -notin $script:PrintGatewayContractRequiredProperties) {
+            if (-not $script:PrintGatewayContractRequiredPropertySet.Contains(
+                $property.Name
+            )) {
                 throw "Unknown print job contract property '$($property.Name)'."
             }
 
-            $properties[$property.Name] = $property.Value
+            $properties.Add($property.Name, $property.Value)
         }
 
         foreach ($requiredProperty in $script:PrintGatewayContractRequiredProperties) {
@@ -224,7 +244,11 @@ function ConvertFrom-PrintGatewayJobJson {
         $templateId = $properties.templateId.GetString()
         $requestedAtText = $properties.requestedAtUtc.GetString()
 
-        if ($contractVersion -ne $script:PrintGatewayContractVersion) {
+        if (-not [string]::Equals(
+            $contractVersion,
+            $script:PrintGatewayContractVersion,
+            [System.StringComparison]::Ordinal
+        )) {
             throw "Unsupported print job contract version '$contractVersion'."
         }
 
@@ -232,7 +256,7 @@ function ConvertFrom-PrintGatewayJobJson {
             throw 'jobId must be 1-128 characters and use only letters, digits, dot, underscore, colon, or hyphen.'
         }
 
-        if ($processId -notmatch '^\d{4}$') {
+        if ($processId -notmatch '^[0-9]{4}$') {
             throw 'processId must contain exactly 4 digits.'
         }
 
@@ -240,7 +264,9 @@ function ConvertFrom-PrintGatewayJobJson {
             throw 'printerId must be 1-64 characters and use only letters, digits, dot, underscore, colon, or hyphen.'
         }
 
-        if ($documentType -notin $script:PrintGatewayContractDocumentTypes) {
+        if (-not $script:PrintGatewayContractDocumentTypeSet.Contains(
+            $documentType
+        )) {
             throw "Unsupported documentType '$documentType'."
         }
 
@@ -249,8 +275,9 @@ function ConvertFrom-PrintGatewayJobJson {
         }
 
         $requestedAtUtc = [DateTimeOffset]::MinValue
-        $timestampHasUtcIsoShape = $requestedAtText -match (
-            '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,7})?Z$'
+        $timestampHasUtcIsoShape = [regex]::IsMatch(
+            $requestedAtText,
+            '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,7})?Z$'
         )
         $timestampIsValid = [DateTimeOffset]::TryParse(
             $requestedAtText,
@@ -281,9 +308,17 @@ function ConvertFrom-PrintGatewayJobJson {
         }
 
         $canonicalBytes = ConvertTo-PrintGatewayCanonicalJsonBytes -Element $root
-        $requestFingerprint = [Convert]::ToHexString(
-            [System.Security.Cryptography.SHA256]::HashData($canonicalBytes)
-        ).ToLowerInvariant()
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        try {
+            $requestHash = $sha256.ComputeHash($canonicalBytes)
+        }
+        finally {
+            $sha256.Dispose()
+        }
+
+        $requestFingerprint = [BitConverter]::ToString($requestHash).
+            Replace('-', '').
+            ToLowerInvariant()
 
         [PSCustomObject]@{
             ContractVersion    = $contractVersion
