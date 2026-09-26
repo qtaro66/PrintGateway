@@ -12,8 +12,11 @@ PrintGateway separates deterministic merge gates from advisory AI reviews.
 |---|---|---:|
 | PrintGateway Safe Regression | Runs the repository's eight safe regression cases without connecting to a printer | Yes |
 | PowerShell Static Analysis | Runs security-focused PSScriptAnalyzer rules against PowerShell source | Yes |
-| SonarQube Cloud Scan | Submits supported files and GitHub Actions configuration for analysis | Yes |
-| SonarCloud Code Analysis | Enforces the server-side SonarQube Cloud Quality Gate | Yes |
+| SonarQube Cloud Scan | Submits supported files, waits for the server-side Quality Gate, and fails when the gate is red | Yes |
+
+SonarQube Cloud may also publish `SonarCloud Code Analysis`. Treat that status
+as additional evidence, not as a required check, because it may not be generated
+for a pull request from a fork.
 
 ### Tier 2 — Advisory AI review
 
@@ -64,6 +67,12 @@ The workflow requires:
 
 - `SONAR_TOKEN`
 
+GitHub does not expose repository secrets to pull requests from forks. The
+workflow therefore skips the SonarQube Cloud scan for fork pull requests without
+exposing the token; the PowerShell static-analysis and safe-regression gates
+continue to run. Do not use `pull_request_target` to execute fork code with
+repository secrets.
+
 A `SNYK_TOKEN` is not required by the current architecture.
 
 Never commit tokens, credentials, production databases, printer addresses,
@@ -79,11 +88,11 @@ Require these status checks:
 - `PrintGateway Safe Regression`
 - `PowerShell Static Analysis`
 - `SonarQube Cloud Scan`
-- `SonarCloud Code Analysis`
 
 Do not require:
 
 - Qodo
+- SonarCloud Code Analysis
 - Snyk Code Security Scan
 - obsolete Pester check names
 

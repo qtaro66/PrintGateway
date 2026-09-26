@@ -40,7 +40,11 @@ The required deterministic checks are:
 - `PrintGateway Safe Regression`
 - `PowerShell Static Analysis`
 - `SonarQube Cloud Scan`
-- `SonarCloud Code Analysis`
+
+`SonarQube Cloud Scan` waits for the server-side Quality Gate and fails when
+that gate is red. The provider-generated `SonarCloud Code Analysis` status is
+additional evidence when present, but it is not a required check because it may
+not be created for pull requests from forks.
 
 A deterministic failure must be fixed at its source.
 
@@ -145,16 +149,14 @@ Before updating a pinned SHA:
 
 ## 8. SonarQube Cloud
 
-The workflow submission job and the server-side Quality Gate are separate
-signals.
+The workflow job must wait for the server-side Quality Gate by using
+`sonar.qualitygate.wait=true`. Therefore, a green `SonarQube Cloud Scan` job
+confirms that the submitted analysis and its Quality Gate passed.
 
-The agent must verify both:
-
-- `SonarQube Cloud Scan`
-- `SonarCloud Code Analysis`
-
-A green scan-submission job does not replace the native SonarQube Cloud Quality
-Gate result.
+When the provider-generated `SonarCloud Code Analysis` status is present, the
+agent must verify that it agrees with the workflow job. Its absence on a fork
+pull request is not a failure because GitHub withholds `SONAR_TOKEN` from forked
+code and the workflow deliberately skips that secret-dependent scan.
 
 The repository requires `SONAR_TOKEN` as a GitHub Actions secret. Never print,
 log, expose, or commit the token.
@@ -189,7 +191,7 @@ When explicitly authorized, configure the ruleset to:
 
 - Target the `main` branch.
 - Require a pull request before merging.
-- Require all four deterministic checks.
+- Require all three deterministic checks.
 - Require conversation resolution.
 - Block force pushes.
 - Block branch deletion.
@@ -262,7 +264,7 @@ A PrintGateway DevSecOps implementation is complete only when:
 1. `PrintGateway Safe Regression` passes.
 2. `PowerShell Static Analysis` passes.
 3. `SonarQube Cloud Scan` passes.
-4. `SonarCloud Code Analysis` passes.
+4. `SonarCloud Code Analysis` agrees when that provider status is generated.
 5. Safe regression tests run without printer access.
 6. Third-party GitHub Actions are pinned to full commit SHAs.
 7. Documentation matches the implemented workflow.
