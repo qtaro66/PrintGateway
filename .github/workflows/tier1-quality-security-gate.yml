@@ -36,6 +36,11 @@ jobs:
             --yes `
             --no-progress
 
+          $chocoExitCode = $LASTEXITCODE
+          if ($chocoExitCode -ne 0) {
+            throw "Chocolatey failed to install SQLite 3.53.4 (exit code $chocoExitCode)."
+          }
+
           $sqliteExecutable = Get-ChildItem `
             -LiteralPath 'C:\ProgramData\chocolatey\lib\sqlite\tools' `
             -Filter 'sqlite3.exe' `
