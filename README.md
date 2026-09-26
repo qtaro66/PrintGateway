@@ -23,7 +23,9 @@ The current baseline has been verified through a real Epson print:
 | `Lib/EpsonTransport.ps1` | TCP transport, print command sequence, Process ID ACK parsing |
 | `Lib/PrintJobStore.ps1` | Atomic SQLite job transitions and audit events |
 | `Lib/PrintJobManager.ps1` | Durable job-manager API, startup recovery, global mutex |
+| `Lib/PrintJobContract.ps1` | Strict POS-to-PrintGateway v1 request parsing and canonical request fingerprinting |
 | `Data/schema.sql` | Version-controlled SQLite schema |
+| `Contracts/print-job-v1.schema.json` | Versioned JSON Schema for POS print-job requests |
 | `Tools/` | Database provisioning, local-account ACL setup, deployment preflight |
 | `Tests/Invoke-PrintGatewayTests.ps1` | Single entrypoint for all safe regression tests |
 | `Tests/Invoke-PrintGatewayHardwareTest.ps1` | Explicitly confirmed real-printer test |
@@ -96,6 +98,34 @@ The following command performs a real print to the configured printer. Confirm t
 Do not immediately retry a timeout or `UNKNOWN` result. Inspect the durable job record first because bytes may already have reached the printer.
 
 The default printer address in test scripts is the non-routable documentation address `192.0.2.10`. A real address must be supplied explicitly for a hardware test.
+
+## POS print-job contract
+
+The first POS integration boundary is the versioned JSON contract in
+`Contracts/print-job-v1.schema.json`. A complete example is available at
+`Contracts/examples/print-job-v1.example.json`.
+
+Load and validate a request without connecting to a printer:
+
+```powershell
+. 'C:\PrintGateway\Lib\PrintJobContract.ps1'
+
+$json = Get-Content `
+    -LiteralPath 'C:\PrintGateway\Contracts\examples\print-job-v1.example.json' `
+    -Raw
+
+$request = ConvertFrom-PrintGatewayJobJson -Json $json
+```
+
+The parser rejects unknown or duplicate properties, unsupported contract
+versions, invalid identifiers, non-UTC timestamps, empty payloads, excessive
+nesting, and requests larger than 256 KiB. `RequestFingerprint` represents the
+canonical request. It is deliberately separate from the existing
+`PayloadFingerprint`, which represents the final rendered ESC/POS bytes.
+
+This milestone defines and validates the integration boundary only. It does not
+yet expose an HTTP endpoint, run a Windows service, render arbitrary templates,
+or send the request to a printer.
 
 ## Current known limitation
 

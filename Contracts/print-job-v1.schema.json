@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/qtaro66/PrintGateway/contracts/print-job-v1.schema.json",
+  "title": "PrintGateway POS Print Job v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contractVersion",
+    "jobId",
+    "processId",
+    "printerId",
+    "documentType",
+    "templateId",
+    "requestedAtUtc",
+    "payload"
+  ],
+  "properties": {
+    "contractVersion": {
+      "const": "1.0"
+    },
+    "jobId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "processId": {
+      "type": "string",
+      "pattern": "^[0-9]{4}$"
+    },
+    "printerId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "documentType": {
+      "enum": [
+        "RECEIPT",
+        "KITCHEN_TICKET",
+        "ORDER_SUMMARY"
+      ]
+    },
+    "templateId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "requestedAtUtc": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,7})?Z$"
+    },
+    "payload": {
+      "type": "object",
+      "minProperties": 1
+    }
+  }
+}

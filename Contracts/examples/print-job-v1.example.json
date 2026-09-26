@@ -1,0 +1,20 @@
+{
+  "contractVersion": "1.0",
+  "jobId": "ORDER-20260926-0001",
+  "processId": "0021",
+  "printerId": "KITCHEN-01",
+  "documentType": "KITCHEN_TICKET",
+  "templateId": "kitchen-ticket-v1",
+  "requestedAtUtc": "2026-09-26T06:00:00Z",
+  "payload": {
+    "orderNumber": "A0001",
+    "table": "T01",
+    "items": [
+      {
+        "name": "Sample item",
+        "quantity": 1,
+        "note": "No sugar"
+      }
+    ]
+  }
+}
