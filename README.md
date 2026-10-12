@@ -101,4 +101,9 @@ The default printer address in test scripts is the non-routable documentation ad
 
 The verified test receipt wrapped the final `***` marker of the first long note onto a separate line. This is a presentation issue in text wrapping, not a transport, ACK, or durable-state failure.
 
-No open-source license has been assigned. Add a license only after the repository owner chooses one.
+## License
+
+PrintGateway source code is licensed under the Mozilla Public License 2.0;
+see `LICENSE`. Vendored Noto Sans Thai Looped font files are licensed
+separately under the SIL Open Font License 1.1; see the `OFL.txt` stored with
+those font assets.

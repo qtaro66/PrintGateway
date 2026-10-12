@@ -1,0 +1,47 @@
+{
+  "fixtureVersion": "1.0",
+  "fixtureId": "thai-raster-commissioning-v1",
+  "syntheticData": true,
+  "title": "*** TEST ONLY — ไม่ใช่ออร์เดอร์ ***",
+  "station": "HARDWARE COMMISSIONING",
+  "orderNumber": "TEST-000001",
+  "table": "TEST",
+  "orderType": "ทดสอบเท่านั้น",
+  "createdAtDisplay": "2000-01-01 00:00:00 UTC",
+  "items": [
+    {
+      "quantity": 1,
+      "name": "ต้มยำกุ้งน้ำข้นหม้อไฟ",
+      "toppings": [
+        "เพิ่มเห็ด",
+        "เพิ่มกุ้ง"
+      ],
+      "note": "เผ็ดน้อย ไม่ใส่ผักชี แยกน้ำ"
+    },
+    {
+      "quantity": 2,
+      "name": "ข้าวผัดปูเนื้อปูก้อนพิเศษ",
+      "toppings": [],
+      "note": "ไม่ใส่หอมใหญ่"
+    },
+    {
+      "quantity": 3,
+      "name": "ทดสอบอักษร: กำปั้น ญี่ปุ่น ฐาน ฝน ฟ้า ปู ผึ้ง",
+      "toppings": [
+        "ไข่ดาว +15.00",
+        "เพิ่มหมูกรอบ +30.00"
+      ],
+      "note": "สระบน–ล่าง วรรณยุกต์ และข้อความยาวสำหรับตรวจการตัดบรรทัด"
+    },
+    {
+      "quantity": 1,
+      "name": "Espresso ×2 / ส่วนลด 50% / ฿123.45",
+      "toppings": [],
+      "note": null
+    }
+  ],
+  "footer": [
+    "TEST RUN — ตรวจภาษาไทย การจัดบรรทัด และการตัดกระดาษ",
+    "ห้ามนำใบนี้ไปผลิตอาหารหรือบันทึกเป็นยอดขาย"
+  ]
+}

@@ -6,6 +6,11 @@
 
 # Test scratch data
 Tests/work/
+Tests/Hardware/Output/
+
+# .NET build artifacts
+**/bin/
+**/obj/
 
 # Local SQLite binary (install separately; see README.md)
 Bin/sqlite3.exe

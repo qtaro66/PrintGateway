@@ -113,7 +113,7 @@ Non-printer regression suite:
 2. Select **File -> New repository**.
 3. Set **Name** to `PrintGateway`.
 4. Set **Local path** to `C:\` so the repository path resolves to the existing `C:\PrintGateway` folder. If GitHub Desktop refuses a non-empty destination, use **File -> Add local repository**, select `C:\PrintGateway`, and allow GitHub Desktop to create the repository when offered.
-5. Do not select a generated `.gitignore` or license; both decisions are already represented locally, and no license has been chosen.
+5. Do not replace the repository `.gitignore` or license during GitHub setup. The project license is Mozilla Public License 2.0, recorded in the root `LICENSE` file. Vendored fonts retain their separate SIL Open Font License 1.1 notice.
 6. Review the Changes list. No `.db`, `Tests/work`, `sqlite3.exe`, photograph, or obsolete snapshot should appear.
 7. Commit with a baseline message such as `Baseline: verified PrintGateway durable Epson integration`.
 8. Select **Publish repository**.

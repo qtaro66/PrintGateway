@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "1.0",
+  "profileId": "epson-tm-t82x-m352a-v1",
+  "manufacturer": "Epson",
+  "model": "TM-T82X",
+  "productModel": "M352A",
+  "firmware": "13.07 ESC/POS",
+  "networkFirmware": "01.04",
+  "transport": {
+    "protocol": "raw-tcp",
+    "defaultPort": 9100,
+    "connectTimeoutMs": 3000,
+    "writeTimeoutMs": 5000
+  },
+  "media": {
+    "paperWidthMm": 80,
+    "printableWidthDots": 576,
+    "dpi": null
+  },
+  "rendering": {
+    "mode": "raster",
+    "sourceEncoding": "UTF-8",
+    "fontFamily": "Noto Sans Thai Looped",
+    "fontVersion": "2.000",
+    "threshold": 180
+  },
+  "capabilities": {
+    "cutter": true,
+    "drawerConnector": "RJ12",
+    "drawerVoltage": 24,
+    "drawerControl": {
+      "pulseCommand": "ESC p",
+      "drivePin": 2,
+      "onTimeMs": 50,
+      "offTimeMs": 500,
+      "openCommandVerified": true,
+      "statusQuery": "GS r 2",
+      "statusResponseVerified": true,
+      "pin3HighState": "CLOSED",
+      "pin3LowState": "OPEN",
+      "verifiedAtUtc": "2026-10-12T08:07:51.0497560Z"
+    },
+    "statusMonitoring": {
+      "preferredCoverMethod": "SNMP",
+      "snmpVersion": "v1",
+      "snmpPort": 161,
+      "coverStatusOid": "1.3.6.1.2.1.43.6.1.1.3.1.1",
+      "coverOpenValue": 3,
+      "coverClosedValue": 4,
+      "coverStatusVerified": true,
+      "coverStatusVerifiedAtUtc": "2026-10-12T08:46:38.8959561Z",
+      "dleEotCoverOpenResult": "no-response",
+      "paperCurrentLevelOid": "1.3.6.1.2.1.43.8.2.1.10.1.1",
+      "paperStatusOid": "1.3.6.1.2.1.43.8.2.1.11.1.1",
+      "paperOutCurrentLevelValue": 0,
+      "paperPresentCurrentLevelValue": -3,
+      "paperOutStatusValue": 19,
+      "paperPresentStatusValue": 0,
+      "paperStatusVerified": true,
+      "paperStatusVerifiedAtUtc": "2026-10-12T08:56:33.9528966Z",
+      "alertTableOid": "1.3.6.1.2.1.43.18.1.1",
+      "paperOutAlertCode": 808,
+      "paperOutAlertDescription": "Roll Paper End",
+      "paperOutAlertGroup": 8,
+      "paperOutAlertSeverity": 3,
+      "alertTablePaperOutVerified": true,
+      "alertTablePaperOutVerifiedAtUtc": "2026-10-12T09:05:46.2900101Z",
+      "paperOutAlertClearsWhenRestoredVerified": true,
+      "paperOutAlertClearsWhenRestoredVerifiedAtUtc": "2026-10-12T09:12:28.6152123Z",
+      "cutterErrorAlertVerified": false
+    },
+    "statusProtocol": "provisional"
+  },
+  "statusPolicy": {
+    "automaticCompletedAllowed": false,
+    "completionEvidence": "none",
+    "afterSendUncertainState": "UNKNOWN",
+    "autoRetryAfterSend": false,
+    "preSendBlockConditions": [
+      "CoverOpen",
+      "PaperOut",
+      "CutterError",
+      "Offline"
+    ]
+  },
+  "certification": {
+    "status": "provisional",
+    "windowsVerified": false,
+    "linuxVerified": false,
+    "lastTestedAtUtc": null,
+    "approvedBy": null,
+    "containsRealDeviceIdentifiers": false
+  }
+}

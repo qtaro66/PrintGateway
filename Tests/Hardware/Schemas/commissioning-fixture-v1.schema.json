@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:printgateway:schema:commissioning-fixture:v1",
+  "title": "PrintGateway Commissioning Fixture v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "fixtureVersion",
+    "fixtureId",
+    "syntheticData",
+    "title",
+    "station",
+    "orderNumber",
+    "table",
+    "orderType",
+    "createdAtDisplay",
+    "items",
+    "footer"
+  ],
+  "properties": {
+    "fixtureVersion": {
+      "const": "1.0"
+    },
+    "fixtureId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "syntheticData": {
+      "const": true
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "station": {
+      "type": "string",
+      "minLength": 1
+    },
+    "orderNumber": {
+      "type": "string",
+      "minLength": 1
+    },
+    "table": {
+      "type": "string",
+      "minLength": 1
+    },
+    "orderType": {
+      "type": "string",
+      "minLength": 1
+    },
+    "createdAtDisplay": {
+      "type": "string",
+      "minLength": 1
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "quantity",
+          "name",
+          "toppings",
+          "note"
+        ],
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "toppings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "footer": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

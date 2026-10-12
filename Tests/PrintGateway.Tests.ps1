@@ -13,7 +13,25 @@ $testCases = @(
     'TEST-0010B-19D.ps1',
     'TEST-0010B-19E.ps1',
     'TEST-0010B-19E-HARDENING.ps1',
-    'TEST-0010B-20A.ps1'
+    'TEST-0010B-20A.ps1',
+    'TEST-0010B-21A.ps1',
+    'TEST-0010B-21B.ps1',
+    'TEST-0010B-21C.ps1',
+    'TEST-0010B-21D.ps1',
+    'TEST-0010B-21E.ps1',
+    'TEST-0010B-21F.ps1',
+    'TEST-0010B-21G.ps1',
+    'TEST-0010B-21H.ps1',
+    'TEST-0010B-21I.ps1',
+    'TEST-0010B-21J.ps1',
+    'TEST-0010B-21K.ps1',
+    'TEST-0010B-21L.ps1',
+    'TEST-0010B-21M.ps1',
+    'TEST-0010B-21N.ps1',
+    'TEST-0010B-21O.ps1',
+    'TEST-0010B-21P.ps1',
+    'TEST-0010B-21Q.ps1',
+    'TEST-0010B-21R.ps1'
 )
 
 $results = [System.Collections.Generic.List[object]]::new()
