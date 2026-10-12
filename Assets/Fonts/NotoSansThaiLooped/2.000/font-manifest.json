@@ -1,0 +1,26 @@
+{
+  "family": "Noto Sans Thai Looped",
+  "version": "2.000",
+  "releaseTag": "NotoSansThaiLooped-v2.000",
+  "sourceRepository": "https://github.com/notofonts/thai",
+  "sourceRelease": "https://github.com/notofonts/thai/releases/tag/NotoSansThaiLooped-v2.000",
+  "sourceArchiveSha256": "D82D9A0D4F7B453D6EDA8B3E10BE680B0265138F610E91E4F5E887222F8BDB79",
+  "license": "SIL Open Font License 1.1",
+  "files": [
+    {
+      "path": "NotoSansThaiLooped-Regular.ttf",
+      "style": "Regular",
+      "sha256": "D941D72AC9043B0A376FCC36F1DD538ABFEC690259915E89F68CA48CC5772726"
+    },
+    {
+      "path": "NotoSansThaiLooped-Bold.ttf",
+      "style": "Bold",
+      "sha256": "7F4D4D0A80CB7463F7E47B319149ED43E70C5CA0E01A4AFF670DC78F0ACC6162"
+    },
+    {
+      "path": "OFL.txt",
+      "style": "License",
+      "sha256": "DAD6E6ABC2BF3FC37CC698AF7607C3F4D4235039695713B222E5A034FB5B9B1C"
+    }
+  ]
+}

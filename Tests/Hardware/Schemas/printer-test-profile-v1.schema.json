@@ -1,0 +1,445 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:printgateway:schema:printer-test-profile:v1",
+  "title": "PrintGateway Printer Test Profile v1",
+  "description": "Sanitized hardware capability and commissioning policy for one printer model and firmware combination.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "profileId",
+    "manufacturer",
+    "model",
+    "productModel",
+    "firmware",
+    "networkFirmware",
+    "transport",
+    "media",
+    "rendering",
+    "capabilities",
+    "statusPolicy",
+    "certification"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "profileId": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "minLength": 3,
+      "maxLength": 100
+    },
+    "manufacturer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "productModel": {
+      "type": "string",
+      "minLength": 1
+    },
+    "firmware": {
+      "type": "string",
+      "minLength": 1
+    },
+    "networkFirmware": {
+      "type": "string",
+      "minLength": 1
+    },
+    "transport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "defaultPort",
+        "connectTimeoutMs",
+        "writeTimeoutMs"
+      ],
+      "properties": {
+        "protocol": {
+          "enum": [
+            "raw-tcp"
+          ]
+        },
+        "defaultPort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "connectTimeoutMs": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 60000
+        },
+        "writeTimeoutMs": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 60000
+        }
+      }
+    },
+    "media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paperWidthMm",
+        "printableWidthDots",
+        "dpi"
+      ],
+      "properties": {
+        "paperWidthMm": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "printableWidthDots": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "dpi": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      }
+    },
+    "rendering": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "sourceEncoding",
+        "fontFamily",
+        "fontVersion",
+        "threshold"
+      ],
+      "properties": {
+        "mode": {
+          "const": "raster"
+        },
+        "sourceEncoding": {
+          "const": "UTF-8"
+        },
+        "fontFamily": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fontVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "threshold": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 255
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cutter",
+        "drawerConnector",
+        "drawerVoltage",
+        "drawerControl",
+        "statusMonitoring",
+        "statusProtocol"
+      ],
+      "properties": {
+        "cutter": {
+          "type": "boolean"
+        },
+        "drawerConnector": {
+          "enum": [
+            "none",
+            "RJ12"
+          ]
+        },
+        "drawerVoltage": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "drawerControl": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pulseCommand",
+            "drivePin",
+            "onTimeMs",
+            "offTimeMs",
+            "openCommandVerified",
+            "statusQuery",
+            "statusResponseVerified",
+            "pin3HighState",
+            "pin3LowState",
+            "verifiedAtUtc"
+          ],
+          "properties": {
+            "pulseCommand": {
+              "const": "ESC p"
+            },
+            "drivePin": {
+              "enum": [2, 5]
+            },
+            "onTimeMs": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 510
+            },
+            "offTimeMs": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 510
+            },
+            "openCommandVerified": {
+              "type": "boolean"
+            },
+            "statusQuery": {
+              "const": "GS r 2"
+            },
+            "statusResponseVerified": {
+              "type": "boolean"
+            },
+            "pin3HighState": {
+              "enum": ["OPEN", "CLOSED", "UNMAPPED"]
+            },
+            "pin3LowState": {
+              "enum": ["OPEN", "CLOSED", "UNMAPPED"]
+            },
+            "verifiedAtUtc": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            }
+          }
+        },
+        "statusMonitoring": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "preferredCoverMethod",
+            "snmpVersion",
+            "snmpPort",
+            "coverStatusOid",
+            "coverOpenValue",
+            "coverClosedValue",
+            "coverStatusVerified",
+            "coverStatusVerifiedAtUtc",
+            "dleEotCoverOpenResult",
+            "paperCurrentLevelOid",
+            "paperStatusOid",
+            "paperOutCurrentLevelValue",
+            "paperPresentCurrentLevelValue",
+            "paperOutStatusValue",
+            "paperPresentStatusValue",
+            "paperStatusVerified",
+            "paperStatusVerifiedAtUtc",
+            "alertTableOid",
+            "paperOutAlertCode",
+            "paperOutAlertDescription",
+            "paperOutAlertGroup",
+            "paperOutAlertSeverity",
+            "alertTablePaperOutVerified",
+            "alertTablePaperOutVerifiedAtUtc",
+            "paperOutAlertClearsWhenRestoredVerified",
+            "paperOutAlertClearsWhenRestoredVerifiedAtUtc",
+            "cutterErrorAlertVerified"
+          ],
+          "properties": {
+            "preferredCoverMethod": {
+              "const": "SNMP"
+            },
+            "snmpVersion": {
+              "const": "v1"
+            },
+            "snmpPort": {
+              "const": 161
+            },
+            "coverStatusOid": {
+              "const": "1.3.6.1.2.1.43.6.1.1.3.1.1"
+            },
+            "coverOpenValue": {
+              "const": 3
+            },
+            "coverClosedValue": {
+              "const": 4
+            },
+            "coverStatusVerified": {
+              "type": "boolean"
+            },
+            "coverStatusVerifiedAtUtc": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            },
+            "dleEotCoverOpenResult": {
+              "enum": ["not-tested", "response-received", "no-response"]
+            },
+            "paperCurrentLevelOid": {
+              "const": "1.3.6.1.2.1.43.8.2.1.10.1.1"
+            },
+            "paperStatusOid": {
+              "const": "1.3.6.1.2.1.43.8.2.1.11.1.1"
+            },
+            "paperOutCurrentLevelValue": {
+              "const": 0
+            },
+            "paperPresentCurrentLevelValue": {
+              "const": -3
+            },
+            "paperOutStatusValue": {
+              "const": 19
+            },
+            "paperPresentStatusValue": {
+              "const": 0
+            },
+            "paperStatusVerified": {
+              "type": "boolean"
+            },
+            "paperStatusVerifiedAtUtc": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            },
+            "alertTableOid": {
+              "const": "1.3.6.1.2.1.43.18.1.1"
+            },
+            "paperOutAlertCode": {
+              "const": 808
+            },
+            "paperOutAlertDescription": {
+              "const": "Roll Paper End"
+            },
+            "paperOutAlertGroup": {
+              "const": 8
+            },
+            "paperOutAlertSeverity": {
+              "const": 3
+            },
+            "alertTablePaperOutVerified": {
+              "type": "boolean"
+            },
+            "alertTablePaperOutVerifiedAtUtc": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            },
+            "paperOutAlertClearsWhenRestoredVerified": {
+              "type": "boolean"
+            },
+            "paperOutAlertClearsWhenRestoredVerifiedAtUtc": {
+              "type": ["string", "null"],
+              "format": "date-time"
+            },
+            "cutterErrorAlertVerified": {
+              "type": "boolean"
+            }
+          }
+        },
+        "statusProtocol": {
+          "enum": [
+            "unsupported",
+            "provisional",
+            "verified"
+          ]
+        }
+      }
+    },
+    "statusPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "automaticCompletedAllowed",
+        "completionEvidence",
+        "afterSendUncertainState",
+        "autoRetryAfterSend",
+        "preSendBlockConditions"
+      ],
+      "properties": {
+        "automaticCompletedAllowed": {
+          "type": "boolean"
+        },
+        "completionEvidence": {
+          "enum": [
+            "none",
+            "job-specific-ack"
+          ]
+        },
+        "afterSendUncertainState": {
+          "const": "UNKNOWN"
+        },
+        "autoRetryAfterSend": {
+          "const": false
+        },
+        "preSendBlockConditions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "CoverOpen",
+              "PaperOut",
+              "CutterError",
+              "Offline"
+            ]
+          }
+        }
+      }
+    },
+    "certification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "windowsVerified",
+        "linuxVerified",
+        "lastTestedAtUtc",
+        "approvedBy",
+        "containsRealDeviceIdentifiers"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "provisional",
+            "certified",
+            "blocked"
+          ]
+        },
+        "windowsVerified": {
+          "type": "boolean"
+        },
+        "linuxVerified": {
+          "type": "boolean"
+        },
+        "lastTestedAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "approvedBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "containsRealDeviceIdentifiers": {
+          "const": false
+        }
+      }
+    }
+  }
+}
